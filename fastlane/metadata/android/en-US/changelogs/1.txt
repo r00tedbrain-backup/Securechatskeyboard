@@ -1,0 +1,29 @@
+🔮 SECURECHATS KEYBOARD BWT 1.0.0 - INITIAL RELEASE 🔮
+
+🚀 FIRST STABLE RELEASE:
+• Complete Post-Quantum Cryptography implementation
+• Kyber 1024 integration with Signal Protocol
+• Hybrid encryption: ECC + Post-Quantum algorithms
+• Future-proof security against quantum computers
+
+🛡️ SECURITY FEATURES:
+• End-to-End Encryption with Signal Protocol
+• Post-Quantum Key Exchange (Kyber)
+• EncryptedSharedPreferences with AES-256
+• Perfect Forward Secrecy
+• Server-free operation
+
+⌨️ KEYBOARD FEATURES:
+• Real-time encryption/decryption
+• Contact management and verification
+• Message history with secure deletion
+• Steganography modes (JSON + Fairy Tale)
+• 89+ language localizations
+
+🔧 TECHNICAL SPECS:
+• libsignal-android 0.73.2
+• Android SDK 34
+• Minimum Android 8.0 (API 26)
+• Java 17 compatibility
+
+Ready for the post-quantum era! 🌟 
