@@ -7,6 +7,7 @@ import org.signal.libsignal.protocol.IdentityKeyPair;
 import org.signal.libsignal.protocol.InvalidKeyIdException;
 import org.signal.libsignal.protocol.NoSessionException;
 import org.signal.libsignal.protocol.SignalProtocolAddress;
+import org.signal.libsignal.protocol.ecc.ECPublicKey;
 import org.signal.libsignal.protocol.groups.state.SenderKeyRecord;
 import org.signal.libsignal.protocol.state.KyberPreKeyStore;
 import org.signal.libsignal.protocol.state.PreKeyRecord;
@@ -194,7 +195,7 @@ public class SignalProtocolStoreImpl implements SignalProtocolStore, KyberPreKey
 
   // ================================================================
   // Métodos de KyberPreKeyStore: Delegamos a kyberPreKeyStore
-  // Usamos KyberPreKeyRecord correctamente desde libsignal 0.73.2
+  // Usamos KyberPreKeyRecord correctamente desde libsignal 0.86.5
   // ================================================================
   @Override
   public KyberPreKeyRecord loadKyberPreKey(int kyberPreKeyId) throws InvalidKeyIdException {
@@ -217,8 +218,8 @@ public class SignalProtocolStoreImpl implements SignalProtocolStore, KyberPreKey
   }
 
   @Override
-  public void markKyberPreKeyUsed(int kyberPreKeyId) {
-    kyberPreKeyStore.markKyberPreKeyUsed(kyberPreKeyId);
+  public void markKyberPreKeyUsed(int kyberPreKeyId, int messageId, ECPublicKey baseKey) {
+    kyberPreKeyStore.markKyberPreKeyUsed(kyberPreKeyId, messageId, baseKey);
   }
 
   /**

@@ -38,7 +38,6 @@ import org.signal.libsignal.protocol.NoSessionException;
 import org.signal.libsignal.protocol.SessionBuilder;
 import org.signal.libsignal.protocol.SignalProtocolAddress;
 import org.signal.libsignal.protocol.UntrustedIdentityException;
-import org.signal.libsignal.protocol.ecc.Curve;
 import org.signal.libsignal.protocol.ecc.ECPublicKey;
 import org.signal.libsignal.protocol.fingerprint.Fingerprint;
 import org.signal.libsignal.protocol.fingerprint.NumericFingerprintGenerator;
@@ -636,10 +635,10 @@ public class SignalProtocolTest {
   private PreKeyResponse createPreKeyResponseMessage(final Account account, final String username) throws InvalidKeyIdException, InvalidKeyException {
     setActiveProtocolAccount(account, username);
 
-    final byte[] signedPreKeySignature = Curve.calculateSignature(
-            account.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey(),
-            account.getSignalProtocolStore().loadSignedPreKey(account.getMetadataStore().getActiveSignedPreKeyId()).getKeyPair().getPublicKey().serialize()
-    );
+    final byte[] signedPreKeySignature = account.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey()
+            .calculateSignature(
+                    account.getSignalProtocolStore().loadSignedPreKey(account.getMetadataStore().getActiveSignedPreKeyId()).getKeyPair().getPublicKey().serialize()
+            );
 
     final int preKeyId = 1;
     final int mDeviceId = 1;

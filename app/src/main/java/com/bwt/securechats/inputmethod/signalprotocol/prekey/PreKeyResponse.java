@@ -46,7 +46,7 @@ public class PreKeyResponse {
   private int kyberPreKeyId;
 
   /**
-   * Firma de la clave pública Kyber (requerida en libsignal 0.73.2).
+   * Firma de la clave pública Kyber (requerida en libsignal 0.86.5).
    */
   @JsonProperty
   private byte[] kyberSignature;

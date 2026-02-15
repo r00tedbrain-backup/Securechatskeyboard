@@ -34,7 +34,6 @@ import org.signal.libsignal.protocol.SessionBuilder;
 import org.signal.libsignal.protocol.SessionCipher;
 import org.signal.libsignal.protocol.SignalProtocolAddress;
 import org.signal.libsignal.protocol.UntrustedIdentityException;
-import org.signal.libsignal.protocol.ecc.Curve;
 import org.signal.libsignal.protocol.ecc.ECKeyPair;
 import org.signal.libsignal.protocol.ecc.ECPublicKey;
 import org.signal.libsignal.protocol.fingerprint.Fingerprint;
@@ -42,6 +41,7 @@ import org.signal.libsignal.protocol.fingerprint.ScannableFingerprint;
 import org.signal.libsignal.protocol.fingerprint.NumericFingerprintGenerator;
 import org.signal.libsignal.protocol.kem.KEMKeyPair;
 import org.signal.libsignal.protocol.kem.KEMKeyType;
+import org.signal.libsignal.protocol.kem.KEMPublicKey;
 import org.signal.libsignal.protocol.message.CiphertextMessage;
 import org.signal.libsignal.protocol.message.PreKeySignalMessage;
 import org.signal.libsignal.protocol.message.SignalMessage;
@@ -49,8 +49,6 @@ import org.signal.libsignal.protocol.state.PreKeyBundle;
 import org.signal.libsignal.protocol.state.PreKeyRecord;
 import org.signal.libsignal.protocol.state.SignedPreKeyRecord;
 import org.signal.libsignal.protocol.state.KyberPreKeyRecord;
-import org.signal.libsignal.protocol.util.Pair;
-import org.signal.libsignal.protocol.kem.KEMPublicKey;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -459,7 +457,7 @@ public class SignalProtocolMain {
     if (messageEnvelope == null) return false;
     try {
       if (messageEnvelope.getPreKeyResponse() != null) {
-        // Procesar ECC + Kyber mediante PreKeyBundle (libsignal 0.73.2 maneja todo automáticamente)
+        // Procesar ECC + Kyber mediante PreKeyBundle (libsignal 0.86.5 maneja todo automáticamente)
         PreKeyBundle preKeyBundle = createPreKeyBundle(messageEnvelope.getPreKeyResponse());
         buildSession(preKeyBundle, signalProtocolAddress);
 
@@ -486,7 +484,7 @@ public class SignalProtocolMain {
       final PreKeyResponse preKeyResponse = createPreKeyResponse();
 
       // AÑADIMOS LA PRE-CLAVE KYBER AL PreKeyResponse
-      // Usamos las claves Kyber de libsignal 0.73.2 (KyberPreKeyStore) 
+      // Usamos las claves Kyber de libsignal 0.86.5 (KyberPreKeyStore) 
       SignalProtocolStoreImpl store = mAccount.getSignalProtocolStore();
       
       // Intentar obtener la última clave Kyber almacenada
@@ -588,7 +586,7 @@ public class SignalProtocolMain {
       signedPreKeySignature = device.getSignedPreKey().getSignature();
     }
 
-    // Validación crítica: SignedPreKey es obligatorio en libsignal 0.73.2
+    // Validación crítica: SignedPreKey es obligatorio en libsignal 0.86.5
     if (signedPreKey == null || signedPreKeySignature == null) {
       throw new IOException("SignedPreKey or SignedPreKeySignature is null - required for PreKeyBundle");
     }
@@ -666,7 +664,7 @@ public class SignalProtocolMain {
       // CORREGIR: Obtener la firma Kyber real del PreKeyResponse, no usar null
       byte[] kyberSignature = preKeyResponse.getKyberSignature();
       if (kyberSignature == null) {
-        Log.e(TAG, "Kyber signature is null - this is required in libsignal 0.73.2");
+        Log.e(TAG, "Kyber signature is null - this is required in libsignal 0.86.5");
         throw new IllegalArgumentException("Kyber signature cannot be null");
       }
       
@@ -771,11 +769,11 @@ public class SignalProtocolMain {
             mAccount.getMetadataStore());
     
     // Generar firma para la clave firmada EC
-    byte[] signedPreKeySignature = Curve.calculateSignature(
-            mAccount.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey(),
-            mAccount.getSignalProtocolStore()
-                    .loadSignedPreKey(mAccount.getMetadataStore().getActiveSignedPreKeyId())
-                    .getKeyPair().getPublicKey().serialize());
+    byte[] signedPreKeySignature = mAccount.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey()
+            .calculateSignature(
+                    mAccount.getSignalProtocolStore()
+                            .loadSignedPreKey(mAccount.getMetadataStore().getActiveSignedPreKeyId())
+                            .getKeyPair().getPublicKey().serialize());
 
     int preKeyId = KeyUtil.getUnusedOneTimePreKeyId(mAccount.getSignalProtocolStore());
     Log.d(TAG, "Generating PreKeyBundle with pre key id: " + preKeyId);
@@ -784,7 +782,7 @@ public class SignalProtocolMain {
     try {
       Log.d(TAG, "Attempting to generate Kyber keys...");
       
-      // En libsignal 0.73.2, usar directamente KEMKeyType.KYBER_1024
+      // En libsignal 0.86.5, usar directamente KEMKeyType.KYBER_1024
       // (si no existe, usar el primer valor disponible)
       KEMKeyPair kyberKeyPair;
       try {
@@ -805,9 +803,8 @@ public class SignalProtocolMain {
       Log.d(TAG, "Generated Kyber prekey ID: " + kyberPreKeyId);
       
       // Firmar la clave pública Kyber con la clave de identidad
-      byte[] kyberSignature = Curve.calculateSignature(
-              mAccount.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey(),
-              kyberKeyPair.getPublicKey().serialize());
+      byte[] kyberSignature = mAccount.getSignalProtocolStore().getIdentityKeyPair().getPrivateKey()
+              .calculateSignature(kyberKeyPair.getPublicKey().serialize());
       Log.d(TAG, "Kyber signature calculated successfully");
 
       // Crear el KyberPreKeyRecord
@@ -846,7 +843,7 @@ public class SignalProtocolMain {
       Log.e(TAG, "Error generating Kyber keys: " + e.getMessage(), e);
       // Imprimir stack trace completo para debugging
       e.printStackTrace();
-      // Fallback: crear PreKeyBundle con parámetros Kyber null (libsignal 0.73.2 permite esto)
+      // Fallback: crear PreKeyBundle con parámetros Kyber null (libsignal 0.86.5 permite esto)
       Log.w(TAG, "Falling back to PreKeyBundle with null Kyber parameters");
       
       return new PreKeyBundle(
@@ -898,16 +895,15 @@ public class SignalProtocolMain {
             identityKeyPair, metadataStore,
             signalProtocolStore, signalProtocolAddress);
 
-    // Generar una pre-clave Kyber inicial usando libsignal 0.73.2 puro
+    // Generar una pre-clave Kyber inicial usando libsignal 0.86.5 puro
     try {
       // Generar clave Kyber con libsignal
       KEMKeyPair kyberKeyPair = KEMKeyPair.generate(KEMKeyType.KYBER_1024);
       int kyberPreKeyId = KeyUtil.generateKyberPreKeyId(signalProtocolStore);
       
       // Firmar la clave pública Kyber
-      byte[] kyberSignature = Curve.calculateSignature(
-              signalProtocolStore.getIdentityKeyPair().getPrivateKey(),
-              kyberKeyPair.getPublicKey().serialize());
+      byte[] kyberSignature = signalProtocolStore.getIdentityKeyPair().getPrivateKey()
+              .calculateSignature(kyberKeyPair.getPublicKey().serialize());
       
       // Crear y almacenar el KyberPreKeyRecord de libsignal
       KyberPreKeyRecord kyberPreKeyRecord = new KyberPreKeyRecord(
@@ -917,7 +913,7 @@ public class SignalProtocolMain {
               kyberSignature);
       
       signalProtocolStore.storeKyberPreKey(kyberPreKeyId, kyberPreKeyRecord);
-      Log.d(TAG, "Initial Kyber prekey generated using libsignal 0.73.2 with id: " + kyberPreKeyId);
+      Log.d(TAG, "Initial Kyber prekey generated using libsignal 0.86.5 with id: " + kyberPreKeyId);
       
     } catch (Exception e) {
       Log.e(TAG, "Failed to generate initial Kyber prekey with libsignal: " + e.getMessage(), e);

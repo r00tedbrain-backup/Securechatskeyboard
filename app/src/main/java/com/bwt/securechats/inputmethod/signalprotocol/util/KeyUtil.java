@@ -9,8 +9,6 @@ import com.bwt.securechats.inputmethod.signalprotocol.stores.SignalProtocolStore
 
 import org.signal.libsignal.protocol.IdentityKey;
 import org.signal.libsignal.protocol.IdentityKeyPair;
-import org.signal.libsignal.protocol.InvalidKeyException;
-import org.signal.libsignal.protocol.ecc.Curve;
 import org.signal.libsignal.protocol.ecc.ECKeyPair;
 import org.signal.libsignal.protocol.ecc.ECPrivateKey;
 import org.signal.libsignal.protocol.kem.KEMKeyPair;
@@ -51,7 +49,7 @@ public class KeyUtil {
   // ECC Identity + Registration
   // --------------------------------------------------------------------------
   public static IdentityKeyPair generateIdentityKeyPair() {
-    ECKeyPair identityKeyPairKeys = Curve.generateKeyPair();
+    ECKeyPair identityKeyPairKeys = ECKeyPair.generate();
     return new IdentityKeyPair(new IdentityKey(identityKeyPairKeys.getPublicKey()),
             identityKeyPairKeys.getPrivateKey());
   }
@@ -83,7 +81,7 @@ public class KeyUtil {
           final int preKeyId
   ) {
     Log.d(TAG, "Generating one-time prekey (ECC) with id: " + preKeyId);
-    ECKeyPair keyPair = Curve.generateKeyPair();
+    ECKeyPair keyPair = ECKeyPair.generate();
     PreKeyRecord record = new PreKeyRecord(preKeyId, keyPair);
     protocolStore.storePreKey(preKeyId, record);
     return record;
@@ -125,13 +123,9 @@ public class KeyUtil {
           final ECPrivateKey privateKey,
           final PreKeyMetadataStore metadataStore
   ) {
-    try {
-      ECKeyPair keyPair = Curve.generateKeyPair();
-      byte[] signature = Curve.calculateSignature(privateKey, keyPair.getPublicKey().serialize());
-      return new SignedPreKeyRecord(signedPreKeyId, System.currentTimeMillis(), keyPair, signature);
-    } catch (InvalidKeyException e) {
-      throw new AssertionError(e);
-    }
+    ECKeyPair keyPair = ECKeyPair.generate();
+    byte[] signature = privateKey.calculateSignature(keyPair.getPublicKey().serialize());
+    return new SignedPreKeyRecord(signedPreKeyId, System.currentTimeMillis(), keyPair, signature);
   }
 
   private static void rotateSignedPreKey(SignalProtocolStoreImpl protocolStore,
@@ -215,7 +209,7 @@ public class KeyUtil {
   /**
    * Genera y almacena una pre-clave Kyber en el store.
    * NOTA: Esta es una implementación temporal que usa BCKyberPreKeyRecord
-   * ya que KyberPreKeyRecord real no es accesible desde Java en libsignal 0.73.2
+   * ya que KyberPreKeyRecord real no es accesible desde Java en libsignal 0.86.5
    */
   public static void generateAndStoreKyberPreKey(SignalProtocolStoreImpl store) {
     Log.d(TAG, "Generating & storing a Kyber PreKey...");

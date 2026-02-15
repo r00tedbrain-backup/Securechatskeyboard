@@ -3,6 +3,7 @@ package com.bwt.securechats.inputmethod.signalprotocol.state;
 import android.util.Log;
 
 import org.signal.libsignal.protocol.InvalidKeyIdException;
+import org.signal.libsignal.protocol.ecc.ECPublicKey;
 import org.signal.libsignal.protocol.state.KyberPreKeyRecord;
 import org.signal.libsignal.protocol.state.KyberPreKeyStore;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementación en memoria del KyberPreKeyStore usando libsignal 0.73.2
+ * Implementación en memoria del KyberPreKeyStore usando libsignal 0.86.5
  */
 public class KyberPreKeyStoreImpl implements KyberPreKeyStore {
 
@@ -44,9 +45,9 @@ public class KyberPreKeyStoreImpl implements KyberPreKeyStore {
     }
 
     @Override
-    public void markKyberPreKeyUsed(int kyberPreKeyId) {
-        // En libsignal, marcar como usado típicamente significa remover la clave
-        // para que no se pueda reutilizar
+    public void markKyberPreKeyUsed(int kyberPreKeyId, int messageId, ECPublicKey baseKey) {
+        // En libsignal 0.86.5, markKyberPreKeyUsed recibe parámetros adicionales
+        // para validación. Marcamos como usado removiendo la clave.
         store.remove(kyberPreKeyId);
     }
 

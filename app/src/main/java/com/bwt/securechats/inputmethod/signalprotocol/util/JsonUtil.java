@@ -168,7 +168,11 @@ public class JsonUtil {
     @Override
     public IdentityKeyPair deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
       Log.d(TAG, "IdentityKeyPairDeserializer used");
-      return new IdentityKeyPair(Base64.decodeWithoutPadding(p.getValueAsString()));
+      try {
+        return new IdentityKeyPair(Base64.decodeWithoutPadding(p.getValueAsString()));
+      } catch (InvalidKeyException e) {
+        throw new IOException("Failed to deserialize IdentityKeyPair: " + e.getMessage(), e);
+      }
     }
   }
 

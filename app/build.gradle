@@ -75,8 +75,11 @@ android {
         exclude 'lib/*/libsignal_jni_unstripped.so'
         exclude 'lib/*/libsignal_ffi_testing.so'
         exclude 'lib/*/libsignal_ffi_debug.so'
+        // libsignal 0.86.5 puede incluir x86/x86_64 para emuladores
+        exclude 'lib/x86/**'
+        exclude 'lib/x86_64/**'
         
-        // Mantener solo las bibliotecas esenciales de producción para Android
+        // Mantener solo las bibliotecas esenciales de producción para Android (ARM)
         pickFirst 'lib/arm64-v8a/libsignal_jni.so'
         pickFirst 'lib/armeabi-v7a/libsignal_jni.so'
         pickFirst 'lib/arm64-v8a/libzkgroup.so'
@@ -109,16 +112,25 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies {
+    // Signal Protocol - E2EE con soporte PQXDH (Kyber/ML-KEM)
+    implementation 'org.signal:libsignal-android:0.86.5'
+    
+    // BouncyCastle - Crypto provider para PQC (Kyber via BC)
     implementation 'org.bouncycastle:bcprov-ext-jdk18on:1.78.1'
-    implementation 'com.google.protobuf:protobuf-javalite:3.21.12' // Eliminar duplicación
-    implementation 'org.signal:libsignal-android:0.73.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1'
-    implementation "androidx.security:security-crypto:1.1.0-alpha03"
+    
+    // Protobuf - Serialización (compatible con libsignal)
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.5'
+    
+    // Jackson - JSON serialización/deserialización de stores
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
+    
+    // AndroidX Security - Encrypted SharedPreferences
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
     
     // Test dependencies
     testImplementation "junit:junit:4.13.2"
     
     // Core library desugaring para compatibilidad con API antiguas
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
