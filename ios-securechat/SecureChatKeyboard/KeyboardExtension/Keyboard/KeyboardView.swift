@@ -12,6 +12,10 @@ private class KeyView: UIControl {
     var keyValue: String = ""
     var isSpecial: Bool = false
 
+    /// Extra hit-area expansion beyond the default 2pt (used for space bar)
+    var hitExpandX: CGFloat = 2
+    var hitExpandY: CGFloat = 2
+
     /// Visual feedback colors (set externally before display)
     var normalBg: UIColor = .white { didSet { backgroundColor = normalBg } }
     var pressedBg: UIColor = UIColor.systemGray3
@@ -39,9 +43,9 @@ private class KeyView: UIControl {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    // Expand hit area by 2pt on every side so adjacent keys share boundaries
+    // Expand hit area so adjacent keys share boundaries (variable per key)
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        return bounds.insetBy(dx: -2, dy: -2).contains(point)
+        return bounds.insetBy(dx: -hitExpandX, dy: -hitExpandY).contains(point)
     }
 
     // Instant visual feedback — no animation, just color swap
@@ -388,9 +392,11 @@ class KeyboardView: UIView {
         globeKey = gk
         views.append(gk)
 
-        // Space bar
+        // Space bar — widest key, gets extra hit expansion for better touch target
         let sp = makeCharKey(display: "", value: " ", lowered: "")
         sp.accessibilityLabel = "Space"
+        sp.hitExpandX = 6   // extra horizontal reach (esp. toward period key)
+        sp.hitExpandY = 4   // extra vertical reach
         let langLabel = UILabel()
         langLabel.text = "ES"
         langLabel.font = .systemFont(ofSize: 14, weight: .regular)
@@ -406,9 +412,12 @@ class KeyboardView: UIView {
         spaceKey = sp
         views.append(sp)
 
-        // Period
+        // Period — smaller hit expansion so space bar wins in the overlap zone
         let pd = makeCharKey(display: ".", value: ".", lowered: ".")
         pd.accessibilityLabel = "Period"
+        pd.hitExpandX = 1   // minimal horizontal expansion (space bar's 6pt wins)
+        pd.hitExpandY = 2
+        pd.label.font = .systemFont(ofSize: 18, weight: .regular) // slightly smaller dot
         periodKey = pd
         views.append(pd)
 
@@ -482,20 +491,23 @@ class KeyboardView: UIView {
         }
         let mBtn = views[0], gBtn = views[1], sBar = views[2], pBtn = views[3], rBtn = views[4]
 
+        // Widths tuned so space bar gets maximum room (matches Apple feel).
+        // iPhone 15 (393pt): space = 393-6 - (42+36+28+78) - 4*4 = 387-184-16 = 187pt
+        // Apple's space bar ~190pt. Close enough for excellent typing.
         mBtn.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-        mBtn.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        mBtn.widthAnchor.constraint(equalToConstant: 42).isActive = true
 
         gBtn.leadingAnchor.constraint(equalTo: mBtn.trailingAnchor, constant: spacing).isActive = true
-        gBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        gBtn.widthAnchor.constraint(equalToConstant: 36).isActive = true
 
         sBar.leadingAnchor.constraint(equalTo: gBtn.trailingAnchor, constant: spacing).isActive = true
 
         pBtn.leadingAnchor.constraint(equalTo: sBar.trailingAnchor, constant: spacing).isActive = true
-        pBtn.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        pBtn.widthAnchor.constraint(equalToConstant: 28).isActive = true
 
         rBtn.leadingAnchor.constraint(equalTo: pBtn.trailingAnchor, constant: spacing).isActive = true
         rBtn.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-        rBtn.widthAnchor.constraint(equalToConstant: 88).isActive = true
+        rBtn.widthAnchor.constraint(equalToConstant: 78).isActive = true
     }
 
     // -------------------------------------------------------------------------

@@ -119,9 +119,9 @@ struct ContentView: View {
 
                 // MARK: - About
                 Section {
-                    InfoRow(title: "Version", value: "4.0.0")
+                    InfoRow(title: "Version", value: "6.0.0")
                     InfoRow(title: "License", value: "GPL-3.0")
-                    InfoRow(title: "Based on", value: "KryptEY by mellitopia & amnesica")
+                    InfoRow(title: "Developed by", value: "R00tedbrain")
                 } header: {
                     Text("About")
                 }
