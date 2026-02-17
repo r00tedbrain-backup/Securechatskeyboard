@@ -128,3 +128,46 @@ fastlane/test_output
 fdroid/metadata/
 fdroid/tmp/
 fdroid/build/
+
+# =============================================
+# iOS / Xcode
+# =============================================
+
+# Xcode user data (contains personal settings, username, breakpoints)
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# Xcode build output
+DerivedData/
+build/
+
+# Xcode generated
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Code signing (NEVER commit these)
+*.mobileprovision
+*.p12
+*.p8
+*.cer
+
+# CocoaPods / Carthage / SPM
+Pods/
+Carthage/
+.build/
+
+# Environment and secrets
+.env
+.env.*
+credentials.json
+
+# iOS simulator logs
+/tmp/sim_*.txt

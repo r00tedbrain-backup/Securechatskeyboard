@@ -9,6 +9,9 @@ struct ContentView: View {
     @State private var protocolInitialized = false
     @State private var showTestResult = false
     @State private var testResult: E2EProtocolTest.TestResult?
+    @State private var showResetConfirmation = false
+    @State private var showFullResetConfirmation = false
+    @State private var resetStatusMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -107,19 +110,55 @@ struct ContentView: View {
                 // MARK: - Danger Zone
                 Section {
                     Button("Reset All Data", role: .destructive) {
-                        try? SignalStoreManager.shared.wipeAll()
-                        SignalProtocolManager.shared.initialize()
-                        protocolInitialized = true
+                        showResetConfirmation = true
+                    }
+
+                    Button("Full Factory Reset (Keychain + Storage)", role: .destructive) {
+                        showFullResetConfirmation = true
+                    }
+
+                    if let msg = resetStatusMessage {
+                        Text(msg)
+                            .font(.caption)
+                            .foregroundStyle(.green)
                     }
                 } header: {
                     Text("Advanced")
                 } footer: {
-                    Text("This will delete all encryption keys, contacts, and message history. This action cannot be undone.")
+                    Text("Reset All Data: deletes keys, contacts, messages and re-initializes.\nFull Factory Reset: also wipes the Keychain and encryption master key. Use this if you experience session or decryption errors after reinstalling.")
+                }
+                .alert("Reset All Data?", isPresented: $showResetConfirmation) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Reset", role: .destructive) {
+                        try? SignalStoreManager.shared.wipeAll()
+                        SignalProtocolManager.shared.initialize()
+                        protocolInitialized = true
+                        resetStatusMessage = "All data reset. New identity created."
+                    }
+                } message: {
+                    Text("This will delete all encryption keys, contacts, and message history. A new identity will be generated. This cannot be undone.")
+                }
+                .alert("Full Factory Reset?", isPresented: $showFullResetConfirmation) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Factory Reset", role: .destructive) {
+                        // 1. Wipe all Signal Protocol data
+                        try? SignalStoreManager.shared.wipeAll()
+                        // 2. Wipe the encryption master key from Keychain
+                        try? KeychainHelper.shared.delete(forKey: "storage.masterEncryptionKey")
+                        // 3. Wipe entire Keychain for our service (catches any residual data)
+                        try? KeychainHelper.shared.deleteAll()
+                        // 4. Re-initialize with fresh identity and fresh encryption key
+                        SignalProtocolManager.shared.initialize()
+                        protocolInitialized = true
+                        resetStatusMessage = "Factory reset complete. All data wiped, new identity created."
+                    }
+                } message: {
+                    Text("This will completely wipe ALL data including the iOS Keychain entries and the storage encryption key. Use this if sessions are corrupted after a reinstall. This cannot be undone.")
                 }
 
                 // MARK: - About
                 Section {
-                    InfoRow(title: "Version", value: "6.0.0")
+                    InfoRow(title: "Version", value: "9.0.0")
                     InfoRow(title: "License", value: "GPL-3.0")
                     InfoRow(title: "Developed by", value: "R00tedbrain")
                 } header: {

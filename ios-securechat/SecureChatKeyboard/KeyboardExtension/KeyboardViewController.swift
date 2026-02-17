@@ -20,8 +20,8 @@ class KeyboardViewController: UIInputViewController {
     private let stripCollapsedHeight: CGFloat = 116
     /// Height of the strip in expanded mode (contact list, messages, etc.).
     private let stripExpandedHeight: CGFloat = 220
-    /// Height of the keyboard area.
-    private let keyboardHeight: CGFloat = 220
+    /// Height of the keyboard area (native iOS keyboard is ~216pt).
+    private let keyboardHeight: CGFloat = 216
 
     private var stripHeightConstraint: NSLayoutConstraint!
     private var totalHeightConstraint: NSLayoutConstraint!

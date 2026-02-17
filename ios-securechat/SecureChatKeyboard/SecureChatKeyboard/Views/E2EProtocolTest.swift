@@ -22,7 +22,12 @@ final class E2EProtocolTest {
 
     static func run() -> TestResult {
         var log = ""
-        func p(_ msg: String) { log += msg + "\n"; print("[E2E-TEST] \(msg)") }
+        func p(_ msg: String) {
+            log += msg + "\n"
+            #if DEBUG
+            print("[E2E-TEST] \(msg)")
+            #endif
+        }
 
         p("=== E2E Signal Protocol Test ===")
         p("")

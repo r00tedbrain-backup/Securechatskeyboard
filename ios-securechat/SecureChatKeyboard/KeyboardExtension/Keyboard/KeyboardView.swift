@@ -30,9 +30,9 @@ private class KeyView: UIControl {
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
             label.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
-        layer.cornerRadius = 5
+        layer.cornerRadius = 5.5   // Native iOS key corner radius
         layer.shadowOffset = CGSize(width: 0, height: 1)
-        layer.shadowRadius = 0
+        layer.shadowRadius = 0.5
         isExclusiveTouch = false          // allow multi-finger rapid typing
         isMultipleTouchEnabled = false
 
@@ -234,14 +234,14 @@ class KeyboardView: UIView {
         accessibilityLabel = "SecureChat Keyboard"
 
         containerStack.axis = .vertical
-        containerStack.spacing = 8
+        containerStack.spacing = 11   // Native iOS uses ~11pt row spacing
         containerStack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(containerStack)
         NSLayoutConstraint.activate([
-            containerStack.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            containerStack.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             containerStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 3),
             containerStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
-            containerStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2),
+            containerStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
         ])
     }
 
@@ -265,14 +265,14 @@ class KeyboardView: UIView {
         for (ri, row) in rows.enumerated() {
             let rv = UIView()
             rv.translatesAutoresizingMaskIntoConstraints = false
-            rv.heightAnchor.constraint(equalToConstant: 46).isActive = true
+            rv.heightAnchor.constraint(equalToConstant: 42).isActive = true  // Native iOS key height
             containerStack.addArrangedSubview(rv)
             buildRow(row, rowIndex: ri, in: rv)
         }
 
         let bv = UIView()
         bv.translatesAutoresizingMaskIntoConstraints = false
-        bv.heightAnchor.constraint(equalToConstant: 46).isActive = true
+        bv.heightAnchor.constraint(equalToConstant: 42).isActive = true  // Native iOS key height
         containerStack.addArrangedSubview(bv)
         buildBottomRow(in: bv)
 
@@ -312,7 +312,7 @@ class KeyboardView: UIView {
 
     private func buildRow(_ keys: [String], rowIndex: Int, in container: UIView) {
         var views: [UIView] = []
-        let spacing: CGFloat = 4
+        let spacing: CGFloat = 6   // Native iOS inter-key spacing
 
         // Left special key on row 2
         if rowIndex == 2 {
@@ -365,14 +365,14 @@ class KeyboardView: UIView {
     }
 
     private func buildBottomRow(in container: UIView) {
-        let spacing: CGFloat = 4
+        let spacing: CGFloat = 6   // Native iOS inter-key spacing
         var views: [UIView] = []
 
         // Mode toggle (123 / ABC)
         let mt = makeSpecialKey()
         let modeTitle = (mode == .letters) ? "123" : "ABC"
         mt.configure(text: modeTitle, value: modeTitle,
-                     font: .systemFont(ofSize: 15, weight: .medium),
+                     font: .systemFont(ofSize: 16, weight: .regular),
                      textColor: keyText, bg: specialBg, pressed: specialPressed,
                      shadow: shadowAlpha, isDark: isDarkMode)
         mt.accessibilityLabel = (mode == .letters) ? "Numbers" : "Letters"
@@ -392,15 +392,17 @@ class KeyboardView: UIView {
         globeKey = gk
         views.append(gk)
 
-        // Space bar — widest key, gets extra hit expansion for better touch target
+        // Space bar — widest key, matching Apple's native keyboard proportions.
+        // On native iOS Spanish keyboard, bottom row is: [123] [emoji] [_____space_____] [return]
+        // NO period key. Space bar takes ~60% of the row width.
         let sp = makeCharKey(display: "", value: " ", lowered: "")
         sp.accessibilityLabel = "Space"
-        sp.hitExpandX = 6   // extra horizontal reach (esp. toward period key)
-        sp.hitExpandY = 4   // extra vertical reach
+        sp.hitExpandX = 8   // generous horizontal reach
+        sp.hitExpandY = 6   // generous vertical reach
         let langLabel = UILabel()
         langLabel.text = "ES"
         langLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        langLabel.textColor = keyText.withAlphaComponent(0.4)
+        langLabel.textColor = keyText.withAlphaComponent(0.35)
         langLabel.translatesAutoresizingMaskIntoConstraints = false
         langLabel.isUserInteractionEnabled = false
         langLabel.isAccessibilityElement = false
@@ -412,22 +414,25 @@ class KeyboardView: UIView {
         spaceKey = sp
         views.append(sp)
 
-        // Period — smaller hit expansion so space bar wins in the overlap zone
-        let pd = makeCharKey(display: ".", value: ".", lowered: ".")
-        pd.accessibilityLabel = "Period"
-        pd.hitExpandX = 1   // minimal horizontal expansion (space bar's 6pt wins)
-        pd.hitExpandY = 2
-        pd.label.font = .systemFont(ofSize: 18, weight: .regular) // slightly smaller dot
-        periodKey = pd
-        views.append(pd)
+        // NO period key in letters mode — matches native iOS Spanish keyboard exactly.
+        // Period is available in numbers/symbols mode.
+        periodKey = nil
 
-        // Return
+        // Return — uses icon like native iOS (return arrow) instead of text label
         let rk = makeSpecialKey()
         rk.accessibilityLabel = "Return"
-        rk.configure(text: returnTitle, value: "return",
+        rk.configure(text: "", value: "return",
                      font: .systemFont(ofSize: 16, weight: .medium),
                      textColor: returnText, bg: returnBg, pressed: specialPressed,
                      shadow: shadowAlpha, isDark: isDarkMode)
+        // Use return arrow icon for default/standard return, text for special types
+        switch currentReturnKeyType {
+        case .go, .search, .send, .next, .done, .join, .route, .emergencyCall:
+            rk.label.isHidden = false
+            rk.label.text = returnTitle
+        default:
+            rk.setImage("return.left", pointSize: 18, tint: returnText)
+        }
         rk.addTarget(self, action: #selector(returnTapped), for: .touchDown)
         returnKey = rk
         views.append(rk)
@@ -482,32 +487,30 @@ class KeyboardView: UIView {
     }
 
     private func layoutBottomRow(_ views: [UIView], container: UIView, spacing: CGFloat) {
-        guard views.count == 5 else { return }
+        guard views.count == 4 else { return }
         views.forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             container.addSubview($0)
             $0.topAnchor.constraint(equalTo: container.topAnchor).isActive = true
             $0.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
         }
-        let mBtn = views[0], gBtn = views[1], sBar = views[2], pBtn = views[3], rBtn = views[4]
+        let mBtn = views[0], gBtn = views[1], sBar = views[2], rBtn = views[3]
 
-        // Widths tuned so space bar gets maximum room (matches Apple feel).
-        // iPhone 15 (393pt): space = 393-6 - (42+36+28+78) - 4*4 = 387-184-16 = 187pt
-        // Apple's space bar ~190pt. Close enough for excellent typing.
+        // Native iOS Spanish keyboard bottom row proportions (measured on iPhone 15, 393pt width):
+        //   [123: ~44pt] [globe: ~44pt] [______space: ~240pt______] [return: ~53pt]
+        // Total keys = 44+44+240+53 = 381pt  + 3 gaps * 4pt = 393pt (6pt margins)
+        // Space bar is ~61% of total width — the dominant key.
         mBtn.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-        mBtn.widthAnchor.constraint(equalToConstant: 42).isActive = true
+        mBtn.widthAnchor.constraint(equalToConstant: 44).isActive = true
 
         gBtn.leadingAnchor.constraint(equalTo: mBtn.trailingAnchor, constant: spacing).isActive = true
-        gBtn.widthAnchor.constraint(equalToConstant: 36).isActive = true
+        gBtn.widthAnchor.constraint(equalToConstant: 44).isActive = true
 
         sBar.leadingAnchor.constraint(equalTo: gBtn.trailingAnchor, constant: spacing).isActive = true
 
-        pBtn.leadingAnchor.constraint(equalTo: sBar.trailingAnchor, constant: spacing).isActive = true
-        pBtn.widthAnchor.constraint(equalToConstant: 28).isActive = true
-
-        rBtn.leadingAnchor.constraint(equalTo: pBtn.trailingAnchor, constant: spacing).isActive = true
+        rBtn.leadingAnchor.constraint(equalTo: sBar.trailingAnchor, constant: spacing).isActive = true
         rBtn.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-        rBtn.widthAnchor.constraint(equalToConstant: 78).isActive = true
+        rBtn.widthAnchor.constraint(equalToConstant: 53).isActive = true
     }
 
     // -------------------------------------------------------------------------
@@ -517,7 +520,7 @@ class KeyboardView: UIView {
     private func makeCharKey(display: String, value: String, lowered: String) -> KeyView {
         let kv = KeyView()
         kv.configure(text: display, value: value,
-                     font: .systemFont(ofSize: 22.5, weight: .regular),
+                     font: .systemFont(ofSize: 25, weight: .light),
                      textColor: keyText, bg: keyBg, pressed: keyPressed,
                      shadow: shadowAlpha, isDark: isDarkMode)
 
@@ -576,9 +579,11 @@ class KeyboardView: UIView {
         spaceKey?.normalBg = keyBg
         spaceKey?.pressedBg = keyPressed
         spaceKey?.backgroundColor = keyBg
-        periodKey?.normalBg = keyBg
-        periodKey?.pressedBg = keyPressed
-        periodKey?.label.textColor = keyText
+        if let pk = periodKey {
+            pk.normalBg = keyBg
+            pk.pressedBg = keyPressed
+            pk.label.textColor = keyText
+        }
 
         if let rk = returnKey {
             rk.normalBg = returnBg
