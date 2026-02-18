@@ -171,3 +171,17 @@ credentials.json
 
 # iOS simulator logs
 /tmp/sim_*.txt
+
+# =============================================
+# Archivos removidos del tracking (seguridad/limpieza)
+# =============================================
+
+# APK builds (no versionar binarios)
+*.apk
+*.apk.idsig
+
+# Script de firma con rutas privadas
+sign_apk.sh
+
+# Archivos personales
+guion_elevenlabs.txt
