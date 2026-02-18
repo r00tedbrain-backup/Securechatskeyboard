@@ -1,134 +1,158 @@
-# SecureChat Keyboard — iOS
+# SecureChats Keyboard -- iOS
 
-Post-quantum encrypted keyboard for iOS. End-to-end encryption with Signal Protocol + Kyber PQC, directly from your keyboard.
+Post-quantum encrypted keyboard for iOS. End-to-end encryption with Signal Protocol + Kyber (ML-KEM / PQXDH), directly from your keyboard. No servers, no accounts, zero data collection.
+
+Developed by **R00tedbrain**. Version 9.0.0.
+
+## Features
+
+- Full QWERTY keyboard matching native iOS look and feel
+- End-to-end encryption with one tap from the E2EE control strip
+- Signal Protocol (X3DH + Double Ratchet) with post-quantum Kyber-1024 (PQXDH)
+- All data encrypted at rest with AES-256-GCM (master key in iOS Keychain / Secure Enclave)
+- Three encoding modes: RAW (JSON), Fairy Tale (steganography), Base64
+- Paste button for apps with Face ID lock (WhatsApp, banking apps) that clear clipboard on switch
+- Contact management, message history, fingerprint verification
+- Full Factory Reset option to wipe all data including Keychain
+- Works in any app: iMessage, WhatsApp, Telegram, Signal, email, etc.
+- Completely offline -- zero network connections
+- Open source (GPL-3.0)
 
 ## Project Structure
 
 ```
-ios-securechat/
-  SecureChatKeyboard/
-    Package.swift                          — SPM config (LibSignalClient dependency)
-    SecureChatKeyboard/                    — Containing app (SwiftUI)
-      SecureChatKeyboardApp.swift           — App entry point
-      Views/
-        ContentView.swift                   — Setup guide, settings, account info
-    KeyboardExtension/                     — Custom Keyboard Extension (UIKit)
-      KeyboardViewController.swift          — UIInputViewController (main entry)
-      Info.plist                            — Extension config (RequestsOpenAccess=true)
-      Views/
-        E2EEStripView.swift                 — Encrypt/Decrypt/Contacts strip
-      Keyboard/
-        KeyboardView.swift                  — QWERTY keyboard layout
-    Shared/                                — Code shared between app and extension
+SecureChatKeyboard/
+  SecureChatKeyboard/                    -- Containing app (SwiftUI)
+    SecureChatKeyboardApp.swift           -- App entry point
+    Views/
+      ContentView.swift                   -- Setup guide, settings, reset buttons, about
+      E2EProtocolTest.swift               -- Built-in E2E protocol test
+    Shared/                               -- Mirror of KeyboardExtension/Shared (both targets)
+  KeyboardExtension/                     -- Custom Keyboard Extension (UIKit)
+    KeyboardViewController.swift          -- UIInputViewController (main entry)
+    Info.plist                            -- Extension config (RequestsOpenAccess=true)
+    Views/
+      E2EEStripView.swift                 -- E2EE control strip (5 icons + paste + input field)
+    Keyboard/
+      KeyboardView.swift                  -- QWERTY keyboard (native iOS dimensions and feel)
+    Shared/
       Protocol/
-        SignalProtocolManager.swift          — Main E2EE manager (singleton)
+        SignalProtocolManager.swift        -- Signal Protocol + Kyber manager (singleton)
         Models/
-          Contact.swift                     — Contact model
-          StorageMessage.swift              — Chat history record
-          MessageEnvelope.swift             — Encrypted message wrapper
-          MessageType.swift                 — Message type detection
-          PreKeyResponseData.swift          — PreKey serialization models
-          PreKeyMetadata.swift              — Key rotation metadata
+          Contact.swift                   -- Contact model
+          StorageMessage.swift            -- Chat history record
+          MessageEnvelope.swift           -- Encrypted message wrapper (JSON array serialization)
+          MessageType.swift               -- Message type detection (invite/message/rotation)
+          PreKeyResponseData.swift        -- PreKey bundle serialization
+          PreKeyMetadata.swift            -- Key rotation metadata
         Stores/
-          SignalStoreManager.swift           — Protocol store persistence
+          SignalStoreManager.swift         -- Protocol store persistence
         Encoding/
-          MessageEncoder.swift              — Encoder protocol + EncodingMode enum
-          RawEncoder.swift                  — JSON encoder
-          FairyTaleEncoder.swift            — Steganographic encoder
-          Base64MessageEncoder.swift        — Base64 encoder
+          MessageEncoder.swift            -- Encoder protocol + EncodingMode enum
+          RawEncoder.swift                -- JSON encoder/decoder
+          FairyTaleEncoder.swift          -- Steganographic encoder (Unicode invisible chars)
+          Base64MessageEncoder.swift      -- Base64 encoder/decoder
       Storage/
-        KeychainHelper.swift                — iOS Keychain wrapper (hardware-backed)
-        AppGroupStorage.swift               — App Group shared container
+        KeychainHelper.swift              -- iOS Keychain wrapper (Secure Enclave backed)
+        AppGroupStorage.swift             -- App Group shared container with AES-256-GCM encryption
       Util/
-        Logger.swift                        — OSLog wrapper
-        GZip.swift                          — ZLIB compression (for steganography)
+        Logger.swift                      -- OSLog wrapper (private in Release, public in Debug)
+        GZip.swift                        -- ZLIB compression (for steganography)
+  SignalFfi/
+    libsignal_ffi.a                       -- Universal static library (Git LFS, ~133 MB)
+    device/libsignal_ffi.a                -- Device-only library (Git LFS, ~120 MB)
+    simulator/libsignal_ffi.a             -- Simulator-only library (Git LFS, ~133 MB)
 ```
 
-## Architecture
+## Security Architecture
 
-### Containing App (SwiftUI)
-The main app provides:
-- Setup guide (enable keyboard, grant full access)
-- Account information display
-- Security specifications
-- Data reset functionality
+| Data | Storage | Protection |
+|------|---------|------------|
+| Identity key pair | iOS Keychain | Hardware-backed (Secure Enclave), AfterFirstUnlockThisDeviceOnly |
+| Registration ID | iOS Keychain | Hardware-backed |
+| Account UUID | iOS Keychain | Hardware-backed |
+| AES-256 master key | iOS Keychain | Hardware-backed, used for file encryption |
+| Session records | App Group files | AES-256-GCM encrypted at rest |
+| Pre-keys (ECC + Kyber) | App Group files | AES-256-GCM encrypted at rest |
+| Contacts | App Group files | AES-256-GCM encrypted at rest |
+| Message history | App Group files | AES-256-GCM encrypted at rest |
+| Rotation metadata | App Group UserDefaults | Standard iOS data protection |
 
-### Keyboard Extension (UIKit)
-The custom keyboard provides:
-- Full QWERTY keyboard with shift, numbers, symbols
-- E2EE control strip with encrypt/decrypt/contacts/chat buttons
-- Paste & Decrypt button (iOS has no clipboard listener — explicit action needed)
-- Encoding mode toggle (Raw / Fairy Tale / Base64)
-- Dark/light mode adaptive appearance
+### Logging Security
 
-### Shared Framework
-Code shared between both targets:
-- Signal Protocol manager (encrypt, decrypt, sessions, contacts)
-- All data models (Codable for native Swift serialization)
-- Storage layer (Keychain + App Group)
-- Message encoders (Raw, FairyTale steganography, Base64)
+- In **Debug** builds: all logs use `%{public}` for easy debugging
+- In **Release** builds: `Logger.log()` and `Logger.debug()` are compiled out entirely. Only `Logger.error()` emits, using `%{private}` redaction. No sensitive data (messages, UUIDs, keys, clipboard) is ever written to the system log in production.
+
+## Keyboard Dimensions (Native iOS Match)
+
+The keyboard replicates native iOS keyboard dimensions:
+
+| Property | Value | Native iOS |
+|----------|-------|------------|
+| Key height | 42pt | ~42pt |
+| Row spacing | 11pt | ~11pt |
+| Inter-key spacing | 6pt | ~6pt |
+| Font | 25pt SF Light | ~25pt Light |
+| Corner radius | 5.5pt | ~5.5pt |
+| Bottom row | [123] [globe] [space] [return] | Same (no period in Spanish) |
+| Space bar width | ~240pt (iPhone 15) | ~240pt |
+| Return key | Arrow icon (53pt) | Arrow icon (~53pt) |
+| Total keyboard height | 216pt | ~216pt |
+
+## E2EE Control Strip
+
+The strip above the keyboard provides 5 icon buttons plus a paste button:
+
+1. **Chat bubble** -- Message history with selected contact
+2. **Lock** -- Smart decrypt: reads clipboard (or internal field as fallback), detects invites or encrypted messages
+3. **Envelope+Lock** -- Encrypt typed message and paste into chat. Long press to change encoding mode.
+4. **Person** -- Contacts list (select, add, delete, verify, send invite)
+5. **?** -- Help screen with full instructions
+6. **Clipboard icon** -- Paste button: reads clipboard immediately into internal field (solves Face ID clipboard clearing)
+
+## Build Requirements
+
+- Xcode 15+
+- iOS 16.0 deployment target
+- Apple Developer account (for signing and capabilities)
+- App Groups: `group.com.bwt.securechats`
+- Keychain Sharing: `com.bwt.securechats.keychain`
+- Git LFS (for libsignal_ffi.a files)
+
+## Build and Run
+
+```bash
+# Clone with LFS
+git lfs install
+git clone https://github.com/r00tedbrain/SecureChatKeyboardBWT3.0.git
+cd SecureChatKeyboardBWT3.0/ios-securechat/SecureChatKeyboard
+
+# Open in Xcode
+open SecureChatKeyboard.xcodeproj
+
+# Select scheme: SecureChatKeyboard
+# Select device or simulator
+# Build and run (Cmd+R)
+```
+
+After installing:
+1. Open Settings > General > Keyboard > Keyboards > Add New Keyboard > SecureChat
+2. Tap SecureChat > Allow Full Access
+3. Switch to SecureChat Keyboard in any text field
 
 ## Dependencies
 
-| Library | Purpose |
-|---|---|
-| LibSignalClient (SPM) | Signal Protocol — same Rust core as Android's libsignal-android |
+| Library | Source | Purpose |
+|---------|--------|---------|
+| LibSignalClient | libsignal_ffi.a (static, Git LFS) | Signal Protocol + Kyber-1024 (PQXDH) -- same Rust core as Android |
+| CryptoKit | iOS SDK | AES-256-GCM storage encryption |
 
-LibSignalClient includes Kyber-1024 natively (PQXDH). No BouncyCastle equivalent needed.
+No third-party SDKs, analytics, or tracking frameworks.
 
-## Storage Architecture
+## Cross-Platform
 
-| Data | Storage | Security |
-|---|---|---|
-| Identity key pair | iOS Keychain | Hardware-backed (Secure Enclave) |
-| Registration ID | iOS Keychain | Hardware-backed |
-| Account credentials | iOS Keychain | Hardware-backed |
-| Session records | App Group files | File-level encryption |
-| Pre-keys | App Group files | File-level encryption |
-| Contacts | App Group files | File-level encryption |
-| Messages | App Group files | File-level encryption |
-| Metadata | App Group UserDefaults | Standard iOS protection |
-
-## Setup in Xcode
-
-1. Open Xcode > Create new project > App
-2. Product Name: `SecureChatKeyboard`
-3. Bundle ID: `com.bwt.securechats`
-4. Add target: File > New > Target > Custom Keyboard Extension
-5. Extension name: `KeyboardExtension`
-6. Enable App Groups capability on BOTH targets: `group.com.bwt.securechats`
-7. Enable Keychain Sharing on BOTH targets: `com.bwt.securechats.keychain`
-8. Add SPM dependency: `https://github.com/signalapp/libsignal` > LibSignalClient
-9. Copy source files from this directory into the Xcode project
-10. Set deployment target: iOS 16.0
-11. Build and run on device (keyboard extensions need a real device to test properly)
-
-## Key Differences from Android Version
-
-| Feature | Android | iOS |
-|---|---|---|
-| Clipboard detection | Automatic listener | Manual "Paste & Decrypt" button |
-| Open Access warning | None (VIBRATE only) | "Full Access" warning shown to user |
-| Key storage | EncryptedSharedPreferences | Keychain (Secure Enclave — hardware) |
-| Memory limit | Standard service process | 30-60 MB extension limit |
-| Serialization | Jackson + JSON | Codable (native Swift) |
-| PQC library | BouncyCastle + libsignal | libsignal only (Rust core includes Kyber) |
-| Secure text fields | Handled by IME | iOS replaces with system keyboard |
-| Keyboard layouts | 49 XML layouts | QWERTY (extensible) |
-
-## TODO (Next Steps)
-
-- [ ] Create Xcode project with proper signing and capabilities
-- [ ] Add LibSignalClient SPM dependency
-- [ ] Implement actual crypto calls in SignalProtocolManager (marked with TODO)
-- [ ] Implement session establishment flow
-- [ ] Implement fingerprint verification UI
-- [ ] Add more keyboard layouts
-- [ ] Add haptic feedback
-- [ ] Add contact management sub-views in E2EE strip
-- [ ] Test memory usage on older devices
-- [ ] App Store submission preparation
+Currently iOS-to-iOS only. Android-to-iOS interoperability is planned for a future release. The cryptographic layer is identical (both use libsignal with Kyber). The remaining work is JSON serialization format alignment between platforms.
 
 ## License
 
-GPL-3.0 — Same as the Android version.
+GPL-3.0
