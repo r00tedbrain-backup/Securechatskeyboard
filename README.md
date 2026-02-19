@@ -23,7 +23,7 @@ The keyboard works offline. It never connects to the internet. All cryptographic
 | Platform | Status | Version | Store |
 |----------|--------|---------|-------|
 | Android | Released | 3.0.0 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
-| iOS | Released | 9.0.0 | App Store |
+| iOS | Released | 9.0.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
 
 ### Cryptography
 
@@ -186,7 +186,7 @@ El teclado funciona sin conexion. Nunca se conecta a internet. Todas las operaci
 | Plataforma | Estado | Version | Tienda |
 |------------|--------|---------|--------|
 | Android | Publicado | 3.0.0 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
-| iOS | Publicado | 9.0.0 | App Store |
+| iOS | Publicado | 9.0.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
 
 ### Criptografia
 
