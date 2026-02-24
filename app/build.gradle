@@ -7,7 +7,7 @@ android {
         applicationId "com.bwt.securechats"
         minSdkVersion 26
         targetSdkVersion 35
-        versionCode 13
+        versionCode 14
         versionName "3.0.1"
         
         // Cambiar nombre del APK - esto debe funcionar en Android Studio
