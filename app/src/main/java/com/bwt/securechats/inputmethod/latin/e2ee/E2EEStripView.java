@@ -558,7 +558,7 @@ public class E2EEStripView extends RelativeLayout
     final String signalProtocolAddressName = messageEnvelope.getSignalProtocolAddressName();
     final int deviceId = messageEnvelope.getDeviceId();
     final SignalProtocolAddress recipientProtocolAddress =
-            new SignalProtocolAddress(signalProtocolAddressName, deviceId);
+            SignalProtocolMain.createSafeAddress(signalProtocolAddressName, deviceId);
 
     if (!providedContactInformationIsValid(firstName, lastName)) return;
     chosenContact = mE2EEStrip.createAndAddContactToContacts(

@@ -3,6 +3,8 @@ package com.bwt.securechats.inputmethod.signalprotocol.chat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.bwt.securechats.inputmethod.signalprotocol.SignalProtocolMain;
+
 import org.signal.libsignal.protocol.SignalProtocolAddress;
 
 import java.util.Objects;
@@ -25,9 +27,10 @@ public class Contact {
                  @JsonProperty("verified") boolean verified) {
     this.firstName = firstName;
     this.lastName = lastName;
-    this.signalProtocolAddressName = signalProtocolAddressName;
-    this.deviceId = deviceId;
-    this.signalProtocolAddress = new SignalProtocolAddress(signalProtocolAddressName, deviceId);
+    // Sanitizar el addressName para compatibilidad con libsignal 0.86.5
+    this.signalProtocolAddressName = SignalProtocolMain.sanitizeAddressName(signalProtocolAddressName);
+    this.deviceId = SignalProtocolMain.sanitizeDeviceId(deviceId);
+    this.signalProtocolAddress = SignalProtocolMain.createSafeAddress(this.signalProtocolAddressName, this.deviceId);
     this.verified = verified;
   }
 

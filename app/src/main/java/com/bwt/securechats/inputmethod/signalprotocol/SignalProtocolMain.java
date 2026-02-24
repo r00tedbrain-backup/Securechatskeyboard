@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -75,6 +76,67 @@ public class SignalProtocolMain {
 
   // Para test
   public static boolean testIsRunning = false;
+
+  // Regex: UUID puro (lo que libsignal 0.86.5 acepta como ServiceId name)
+  private static final Pattern UUID_PATTERN =
+          Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+  /**
+   * Sanitiza el "name" para SignalProtocolAddress.
+   * libsignal >= 0.58 requiere que name sea un UUID valido (ServiceId).
+   * Versiones antiguas almacenaban "UUID.deviceId" (ej: "abc123...def.7642").
+   * Este metodo extrae solo la parte UUID.
+   */
+  public static String sanitizeAddressName(String name) {
+    if (name == null || name.isEmpty()) {
+      Log.w(TAG, "sanitizeAddressName: name is null/empty, generating new UUID");
+      return UUID.randomUUID().toString();
+    }
+    // Si ya es un UUID puro, devolver tal cual
+    if (UUID_PATTERN.matcher(name).matches()) {
+      return name;
+    }
+    // Formato antiguo: "UUID.deviceId" -> extraer la parte UUID
+    int dotIndex = name.lastIndexOf('.');
+    if (dotIndex > 0) {
+      String candidate = name.substring(0, dotIndex);
+      if (UUID_PATTERN.matcher(candidate).matches()) {
+        Log.w(TAG, "sanitizeAddressName: stripped old deviceId suffix from '" + name + "' -> '" + candidate + "'");
+        return candidate;
+      }
+    }
+    // Intentar parsear directamente como UUID (por si acaso)
+    try {
+      UUID.fromString(name);
+      return name;
+    } catch (IllegalArgumentException e) {
+      // No es un UUID valido en absoluto -> generar uno nuevo
+      Log.e(TAG, "sanitizeAddressName: name '" + name + "' is not a valid UUID, generating new one");
+      return UUID.randomUUID().toString();
+    }
+  }
+
+  /**
+   * Sanitiza el deviceId para SignalProtocolAddress.
+   * libsignal 0.86.5 requiere deviceId en el rango 1-127 inclusive.
+   * Si el deviceId esta fuera de rango, se mapea al rango valido.
+   */
+  public static int sanitizeDeviceId(int deviceId) {
+    if (deviceId < 1 || deviceId > 127) {
+      // Mapear al rango 1-127 usando modulo
+      int sanitized = (Math.abs(deviceId) % 127) + 1;
+      Log.w(TAG, "sanitizeDeviceId: deviceId=" + deviceId + " out of range [1-127], mapped to " + sanitized);
+      return sanitized;
+    }
+    return deviceId;
+  }
+
+  /**
+   * Crea un SignalProtocolAddress sanitizado, seguro para libsignal 0.86.5.
+   */
+  public static SignalProtocolAddress createSafeAddress(String name, int deviceId) {
+    return new SignalProtocolAddress(sanitizeAddressName(name), sanitizeDeviceId(deviceId));
+  }
 
   public static SignalProtocolMain getInstance() {
     return sInstance;
@@ -235,7 +297,7 @@ public class SignalProtocolMain {
 
   private Contact extractContactFromEnvelope(MessageEnvelope messageEnvelope) {
     final SignalProtocolAddress signalProtocolAddress =
-            new SignalProtocolAddress(messageEnvelope.signalProtocolAddressName, messageEnvelope.getDeviceId());
+            createSafeAddress(messageEnvelope.signalProtocolAddressName, messageEnvelope.getDeviceId());
     return getContactFromAddressInContactList(signalProtocolAddress);
   }
 
@@ -869,9 +931,12 @@ public class SignalProtocolMain {
   // --------------------------------------------------------------------------
   private void initializeProtocol() {
     final String uniqueUserId = UUID.randomUUID().toString();
-    final int deviceId = new Random().nextInt(10000);
+    // deviceId debe estar en rango 1-127 para libsignal 0.86.5
+    final int deviceId = new Random().nextInt(127) + 1;
+    Log.d(TAG, "initializeProtocol: creating new address with UUID=" + uniqueUserId + ", deviceId=" + deviceId);
     final SignalProtocolAddress signalProtocolAddress =
-            new SignalProtocolAddress(uniqueUserId, deviceId);
+            createSafeAddress(uniqueUserId, deviceId);
+    Log.d(TAG, "initializeProtocol: address created successfully: " + signalProtocolAddress);
 
     final PreKeyMetadataStore metadataStore = new PreKeyMetadataStoreImpl();
     final IdentityKeyPair identityKeyPair = KeyUtil.generateIdentityKeyPair();

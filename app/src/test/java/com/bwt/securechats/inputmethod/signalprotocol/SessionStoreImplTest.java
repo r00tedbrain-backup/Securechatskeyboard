@@ -28,7 +28,7 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     assertEquals(1, sessionStore.getSize());
@@ -43,9 +43,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);
@@ -61,9 +61,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);
@@ -79,9 +79,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);
@@ -99,9 +99,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);
@@ -118,9 +118,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);
@@ -136,9 +136,9 @@ public class SessionStoreImplTest {
     SessionStoreImpl sessionStore = new SessionStoreImpl();
 
     SessionRecord sessionRecord = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
     SessionRecord sessionRecord2 = new SessionRecord();
-    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(10000));
+    SignalProtocolAddress signalProtocolAddress2 = new SignalProtocolAddress(UUID.randomUUID().toString(), new Random().nextInt(9999) + 1);
 
     sessionStore.storeSession(signalProtocolAddress, sessionRecord);
     sessionStore.storeSession(signalProtocolAddress2, sessionRecord2);

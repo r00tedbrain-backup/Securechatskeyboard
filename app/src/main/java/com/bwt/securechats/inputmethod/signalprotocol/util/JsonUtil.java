@@ -195,7 +195,10 @@ public class JsonUtil {
       JsonNode node = p.getCodec().readTree(p);
       String name = node.get("name").asText();
       int deviceId = (Integer) ((IntNode) node.get("deviceId")).numberValue();
-      return new SignalProtocolAddress(name, deviceId);
+      // Sanitizar para compatibilidad con libsignal 0.86.5:
+      // - name debe ser UUID puro (sin sufijo .deviceId del formato antiguo)
+      // - deviceId debe ser >= 1
+      return SignalProtocolMain.createSafeAddress(name, deviceId);
     }
   }
 

@@ -332,7 +332,7 @@ public class SignalProtocolTest {
   @Test
   public void objectMapperSignalProtocolAddressSerializeTest() throws IOException {
     Log.i(TAG, "------------ objectMapperSignalProtocolAddressSerializeTest: ------------");
-    SignalProtocolAddress address = new SignalProtocolAddress("1234-1234-1234-1234", 1);
+    SignalProtocolAddress address = new SignalProtocolAddress("12340000-1234-1234-1234-123400001234", 1);
     String addressSerialized = JsonUtil.toJson(address);
     assertNotNull(addressSerialized);
     Log.i(TAG, addressSerialized);
@@ -372,7 +372,7 @@ public class SignalProtocolTest {
     IdentityKeyStoreImpl identityKeyStoreDeserialized = JsonUtil.fromJson(identityKeyStoreSerialized, IdentityKeyStoreImpl.class);
     assertNotNull(identityKeyStoreDeserialized);
 
-    SignalProtocolAddress address = new SignalProtocolAddress("1234-1234-1234-1234", 1);
+    SignalProtocolAddress address = new SignalProtocolAddress("12340000-1234-1234-1234-123400001234", 1);
     assertNotNull(address);
     IdentityKeyPair identityKeyChatPartner = KeyUtil.generateIdentityKeyPair();
     assertNotNull(identityKeyChatPartner);
