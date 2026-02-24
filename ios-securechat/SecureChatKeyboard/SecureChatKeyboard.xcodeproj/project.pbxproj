@@ -525,7 +525,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/SignalFfi/simulator",
 				);
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lsignal_ffi",
@@ -574,7 +574,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/SignalFfi/simulator",
 				);
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lsignal_ffi",
@@ -599,7 +599,7 @@
 				DEVELOPMENT_TEAM = 6U988V44QP;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwt.securechats.SecureChatKeyboardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -619,7 +619,7 @@
 				DEVELOPMENT_TEAM = 6U988V44QP;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwt.securechats.SecureChatKeyboardTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -637,7 +637,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6U988V44QP;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwt.securechats.SecureChatKeyboardUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -655,7 +655,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6U988V44QP;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bwt.securechats.SecureChatKeyboardUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -694,7 +694,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/SignalFfi/simulator",
 				);
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lsignal_ffi",
@@ -738,7 +738,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/SignalFfi/simulator",
 				);
-				MARKETING_VERSION = 9.0.0;
+				MARKETING_VERSION = 9.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lsignal_ffi",
