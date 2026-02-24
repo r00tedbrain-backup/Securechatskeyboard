@@ -5,6 +5,7 @@
 
   <application
     android:allowBackup="false"
+    android:extractNativeLibs="false"
     android:icon="@mipmap/ic_launcher_round"
     android:label="@string/english_ime_name"
     android:supportsRtl="true"

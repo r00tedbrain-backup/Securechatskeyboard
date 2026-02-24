@@ -41,6 +41,13 @@ android {
         }
     }
     
+    // Soporte para paginas de memoria de 16 kB (requerido por Google Play para targetSdk 35)
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+    
     // Configuración para excluir archivos innecesarios
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
