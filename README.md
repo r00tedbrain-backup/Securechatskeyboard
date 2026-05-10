@@ -22,8 +22,8 @@ The keyboard works offline. It never connects to the internet. All cryptographic
 
 | Platform | Status | Version | Store |
 |----------|--------|---------|-------|
-| Android | Released | 3.0.0 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
-| iOS | Released | 9.0.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
+| Android | Released | 3.0.2 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
+| iOS | Released | 9.1.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
 
 ### Cryptography
 
@@ -126,10 +126,10 @@ iOS requires:
 
 | Library | Platform | Purpose |
 |---------|----------|---------|
-| libsignal-android 0.73.2 | Android | Signal Protocol + Kyber |
+| libsignal-android 0.86.5 | Android | Signal Protocol + Kyber |
 | Bouncy Castle PQC 1.78.1 | Android | Post-quantum cryptography provider |
 | AndroidX Security Crypto | Android | EncryptedSharedPreferences |
-| Jackson Databind 2.14.1 | Android | JSON serialization |
+| Jackson Databind 2.18.2 | Android | JSON serialization |
 | LibSignalClient (libsignal_ffi.a) | iOS | Signal Protocol + Kyber (Rust core) |
 | CryptoKit | iOS | AES-256-GCM storage encryption |
 
@@ -162,9 +162,11 @@ Originally based on [KryptEY](https://github.com/amnesica/KryptEY) by [mellitopi
 
 Keyboard base: [AOSP LatinIME](https://android.googlesource.com/platform/packages/inputmethods/LatinIME/), [Simple Keyboard](https://github.com/rkkr/simple-keyboard), [OpenBoard](https://github.com/openboard-team/openboard).
 
+Third-party attribution notices are listed in [NOTICE/THIRD_PARTY_NOTICES.md](NOTICE/THIRD_PARTY_NOTICES.md), including notices for AOSP LatinIME and Simple Keyboard Apache-2.0 components.
+
 ### License
 
-GPL-3.0. See [LICENSE](LICENSE) for details.
+GPL-3.0-only. See [LICENSE](LICENSE) for details.
 
 ### Links
 
@@ -185,8 +187,8 @@ El teclado funciona sin conexion. Nunca se conecta a internet. Todas las operaci
 
 | Plataforma | Estado | Version | Tienda |
 |------------|--------|---------|--------|
-| Android | Publicado | 3.0.0 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
-| iOS | Publicado | 9.0.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
+| Android | Publicado | 3.0.2 | [Google Play](https://play.google.com/store/apps/details?id=com.bwt.securechats&hl=es) |
+| iOS | Publicado | 9.1.0 | [App Store](https://apps.apple.com/es/app/securechatkeyboard/id6759229092) |
 
 ### Criptografia
 
@@ -247,9 +249,13 @@ open SecureChatKeyboard.xcodeproj
 
 Basado originalmente en [KryptEY](https://github.com/amnesica/KryptEY) por [mellitopia](https://github.com/mellitopia) y [amnesica](https://github.com/amnesica). La version iOS fue construida desde cero usando la misma base del Protocolo Signal.
 
+Base del teclado: [AOSP LatinIME](https://android.googlesource.com/platform/packages/inputmethods/LatinIME/), [Simple Keyboard](https://github.com/rkkr/simple-keyboard), [OpenBoard](https://github.com/openboard-team/openboard).
+
+Los avisos de atribucion de terceros estan en [NOTICE/THIRD_PARTY_NOTICES.md](NOTICE/THIRD_PARTY_NOTICES.md), incluyendo AOSP LatinIME y Simple Keyboard.
+
 ### Licencia
 
-GPL-3.0. Ver [LICENSE](LICENSE) para detalles.
+GPL-3.0-only. Ver [LICENSE](LICENSE) para detalles.
 
 ### Enlaces
 

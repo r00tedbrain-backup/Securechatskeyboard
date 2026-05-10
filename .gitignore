@@ -177,7 +177,9 @@ credentials.json
 # =============================================
 
 # APK builds (no versionar binarios)
+app/release/
 *.apk
+*.aab
 *.apk.idsig
 
 # Script de firma con rutas privadas

@@ -7,15 +7,18 @@ android {
         applicationId "com.bwt.securechats"
         minSdkVersion 26
         targetSdkVersion 35
-        versionCode 16
-        versionName "3.0.1"
+        versionCode 17
+        versionName "3.0.2"
         
         // Cambiar nombre del APK - esto debe funcionar en Android Studio
         setProperty("archivesBaseName", "SecureChatKeyboard")
         
-        // Filtrar arquitecturas nativas para reducir el tamaño del APK
-        // Esto elimina arquitecturas no necesarias que F-Droid considera innecesarias
-        // Usando splits en lugar de ndk abiFilters para evitar conflictos
+        // Solo 64-bit: armeabi-v7a (32-bit) tiene .so con Align=0x1000 (4kB)
+        // que NO cumple el requisito de 16kB page size de Google Play.
+        // La .so de 32-bit viene precompilada en libsignal y no se puede re-alinear.
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
     }
     
     buildTypes {
@@ -82,15 +85,15 @@ android {
         exclude 'lib/*/libsignal_jni_unstripped.so'
         exclude 'lib/*/libsignal_ffi_testing.so'
         exclude 'lib/*/libsignal_ffi_debug.so'
-        // libsignal 0.86.5 puede incluir x86/x86_64 para emuladores
+        // Excluir todas las ABIs excepto arm64-v8a (solo 64-bit)
+        // armeabi-v7a tiene .so con Align=0x1000 que no cumple 16kB page size
         exclude 'lib/x86/**'
         exclude 'lib/x86_64/**'
+        exclude 'lib/armeabi-v7a/**'
         
-        // Mantener solo las bibliotecas esenciales de producción para Android (ARM)
+        // Mantener solo las bibliotecas esenciales de produccion para arm64-v8a
         pickFirst 'lib/arm64-v8a/libsignal_jni.so'
-        pickFirst 'lib/armeabi-v7a/libsignal_jni.so'
         pickFirst 'lib/arm64-v8a/libzkgroup.so'
-        pickFirst 'lib/armeabi-v7a/libzkgroup.so'
     }
     
     dependenciesInfo {
@@ -133,7 +136,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
     
     // AndroidX Security - Encrypted SharedPreferences
-    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+    implementation "androidx.security:security-crypto:1.1.0"
     
     // Test dependencies
     testImplementation "junit:junit:4.13.2"
